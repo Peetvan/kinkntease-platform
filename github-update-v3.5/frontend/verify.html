@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Verification - Kink N Tease</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+        }
+        .container {
+            background: rgba(255,255,255,0.05);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 500px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .icon { font-size: 80px; margin-bottom: 20px; }
+        h1 { font-size: 32px; margin-bottom: 15px; color: #4ECCA3; }
+        p { font-size: 16px; line-height: 1.6; margin-bottom: 20px; color: #ccc; }
+        .btn {
+            background: #4ECCA3;
+            color: #fff;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 20px;
+            transition: all 0.3s;
+        }
+        .btn:hover { background: #45b893; transform: translateY(-2px); }
+        .spinner {
+            border: 4px solid rgba(255,255,255,0.1);
+            border-top: 4px solid #4ECCA3;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .error { color: #e74c3c; }
+        .success { color: #4ECCA3; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="loading">
+            <div class="spinner"></div>
+            <h1>Verifying your email...</h1>
+            <p>Please wait while we verify your account.</p>
+        </div>
+        
+        <div id="success" class="hidden">
+            <div class="icon">✅</div>
+            <h1 class="success">Email Verified!</h1>
+            <p>Your email has been successfully verified.</p>
+            <p>You can now login to your Kink N Tease account.</p>
+            <a href="/" class="btn">Go to Login</a>
+        </div>
+        
+        <div id="already-verified" class="hidden">
+            <div class="icon">⚠️</div>
+            <h1 style="color:#f39c12">Link Already Used or Expired</h1>
+            <p style="margin-bottom:15px">This verification link has either been used already or has expired.</p>
+            
+            <div style="background:rgba(255,255,255,0.05);padding:20px;border-radius:10px;margin:20px 0;text-align:left">
+                <h3 style="color:#4ECCA3;margin-bottom:10px;font-size:18px">What to do next:</h3>
+                
+                <p style="margin-bottom:12px">
+                    <strong style="color:#4ECCA3">✓ If your email is already verified:</strong><br>
+                    <span style="color:#aaa;font-size:14px">Simply go back to the login page and sign in with your credentials.</span>
+                </p>
+                
+                <p style="margin-bottom:12px">
+                    <strong style="color:#4ECCA3">✓ If you need a new verification link:</strong><br>
+                    <span style="color:#aaa;font-size:14px">Go to the login page and click "Resend Verification Email" (if you see that option).</span>
+                </p>
+                
+                <p style="margin-bottom:0">
+                    <strong style="color:#4ECCA3">✓ If you're having trouble:</strong><br>
+                    <span style="color:#aaa;font-size:14px">Try registering again with a different email address, or contact support for assistance.</span>
+                </p>
+            </div>
+            
+            <a href="/" class="btn">Back to Login</a>
+        </div>
+        
+        <div id="error" class="hidden">
+            <div class="icon">❌</div>
+            <h1 class="error">Verification Failed</h1>
+            <p id="error-message">The verification link is invalid or has expired.</p>
+            <a href="/" class="btn">Back to Home</a>
+        </div>
+    </div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const token = urlParams.get('token');
+
+        if (!token) {
+            showError('No verification token provided.');
+        } else {
+            verifyEmail(token);
+        }
+
+        async function verifyEmail(token) {
+            try {
+                const response = await fetch('/api/index.php?endpoint=auth&action=verify-email', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-API-Key': 'kinkntease_secret_key_2024'
+                    },
+                    body: JSON.stringify({ token: token })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showSuccess();
+                } else {
+                    // Check if already verified or expired
+                    const error = data.error || 'Verification failed';
+                    if (error.toLowerCase().includes('invalid') || error.toLowerCase().includes('expired')) {
+                        showAlreadyVerified();
+                    } else {
+                        showError(error);
+                    }
+                }
+            } catch (error) {
+                showError('Network error. Please check your connection and try again.');
+            }
+        }
+
+        function showSuccess() {
+            document.getElementById('loading').classList.add('hidden');
+            document.getElementById('error').classList.add('hidden');
+            document.getElementById('already-verified').classList.add('hidden');
+            document.getElementById('success').classList.remove('hidden');
+        }
+
+        function showError(message) {
+            document.getElementById('loading').classList.add('hidden');
+            document.getElementById('success').classList.add('hidden');
+            document.getElementById('already-verified').classList.add('hidden');
+            document.getElementById('error').classList.remove('hidden');
+            document.getElementById('error-message').textContent = message;
+        }
+        
+        function showAlreadyVerified() {
+            document.getElementById('loading').classList.add('hidden');
+            document.getElementById('success').classList.add('hidden');
+            document.getElementById('error').classList.add('hidden');
+            document.getElementById('already-verified').classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
