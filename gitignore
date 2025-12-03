@@ -1,0 +1,68 @@
+# Kink N Tease - Git Ignore
+
+# Sensitive files - NEVER COMMIT!
+config.php
+.env
+*.key
+*.pem
+
+# Database credentials
+database-credentials.txt
+db-config.php
+
+# Uploaded files (too large for git)
+uploads/
+user-uploads/
+photos/
+voice/
+media/
+
+# Logs
+*.log
+error_log
+debug.log
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Backup files
+*.bak
+*.backup
+*-backup.*
+
+# Large files (use Git LFS if needed)
+*.mp4
+*.webm
+*.mp3
+*.wav
+
+# Node modules (if using build tools)
+node_modules/
+npm-debug.log
+
+# Compiled files
+*.min.js
+*.min.css
+
+# Cache
+cache/
+tmp/
+temp/
+
+# Session data
+sessions/
